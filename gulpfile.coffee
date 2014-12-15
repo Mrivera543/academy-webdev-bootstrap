@@ -26,7 +26,21 @@ VENDOR_DIR        = "./#{BASES.src}/scripts/vendor/"
 SCRIPTS_BUILD_DIR = "#{BASES.build}/scripts"
 
 ###############################################################################
-# clean
+# helper function
+###############################################################################
+handleErrors = () ->
+  args = Array.prototype.slice.call(arguments);
+
+  $.notify.onError({
+    title: "Compile Error",
+    message: "<%= error.message %>"
+  }).apply(this, args);
+
+  this.emit('end');
+  return
+
+###############################################################################
+# set-production
 ###############################################################################
 gulp.task 'set-production', ->
   isProduction = true
@@ -127,7 +141,7 @@ gulp.task 'watchify', ->
   rebundle = ->
     bundler
       .bundle()
-      .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
+      .on('error', handleErrors)
       .pipe(source('application.js'))
       .pipe(gulp.dest(SCRIPTS_BUILD_DIR))
       .pipe($.if(!isProduction, reload({ stream: true, once: true })))
