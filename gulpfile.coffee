@@ -25,11 +25,6 @@ SERVER_PORT       = 3456
 VENDOR_DIR        = "./#{BASES.src}/scripts/vendor/"
 SCRIPTS_BUILD_DIR = "#{BASES.build}/scripts"
 
-EXTERNALS         = [
-  { require: "lodash", expose: 'underscore' }
-  { require: "jquery", expose: 'jquery' }
-  { require: "rsvp",   expose: 'rsvp' }
-]
 ###############################################################################
 # clean
 ###############################################################################
@@ -49,11 +44,8 @@ gulp.task 'clean', ->
 
 gulp.task 'haml', ->
   gulp.src(["#{BASES.src}/**/*.haml", "!#{BASES.src}/pages/**/_*"])
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.rubyHaml())
-    .on('error', $.notify.onError({ onError: true }))
-    .on('error', $.util.log)
-    .on('error', $.util.beep)
     .pipe(gulp.dest("#{BASES.build}"))
     .pipe($.if(!isProduction, reload({ stream: true, once: true })))
 
@@ -63,7 +55,7 @@ gulp.task 'haml', ->
 
 gulp.task 'coffeelint', ->
   gulp.src('#{BASES.src}/scripts/**/*.coffee')
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.coffeelint())
     .pipe($.coffeelint.reporter())
 
@@ -73,7 +65,7 @@ gulp.task 'coffeelint', ->
 
 gulp.task 'compass', ->
   gulp.src(["#{BASES.src}/stylesheets/**/*.{css,scss,sass}", "!#{BASES.src}/pages/**/_*"])
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.compass(
       config_file: './config.rb'
       css: "build/stylesheets",
@@ -91,7 +83,7 @@ gulp.task 'compass', ->
 
 gulp.task 'copy', ->
   gulp.src("#{BASES.src}/assets/**")
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe(gulp.dest("#{BASES.build}/assets"))
     .pipe($.if(!isProduction, reload({ stream: true, once: true })))
 
@@ -101,7 +93,7 @@ gulp.task 'copy', ->
 
 gulp.task 'uglify:all', ->
   gulp.src('#{BASES.build}/scripts/*.js')
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.uglify())
     .pipe($.rename({ suffix: '.min' }))
     .pipe(gulp.dest("#{BASES.build}/scripts"))
@@ -112,7 +104,7 @@ gulp.task 'uglify:all', ->
 
 gulp.task 'cssmin:minify', ->
   gulp.src('#{BASES.build}/stylesheets/*.css')
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
     .pipe($.cssmin())
     .pipe($.rename({ suffix: '.min' }))
     .pipe(gulp.dest("#{BASES.build}/stylesheets"));
@@ -121,35 +113,29 @@ gulp.task 'cssmin:minify', ->
 # Browserify
 ###############################################################################
 
-requireExternals = (bundler, externals) ->
-  for external in externals
-    if external.expose?
-      bundler.require external.require, expose: external.expose
-    else
-      bundler.require external.require
-
 gulp.task 'watchify', ->
-  console.log 'watchify'
-  entry = "#{BASES.src}/scripts/application.coffee"
-  output = 'application.js'
-  if isProduction
-    bundler = browserify(entry)
-  else
-    bundler = watchify(entry)
-  bundler.transform coffeeify
-  requireExternals bundler, EXTERNALS
+  bundler = browserify
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    entries: ["#{BASES.src}/scripts/application.coffee"],
+    extensions: ['.coffee', '.js'],
+    debug: !isProduction
+
+  bundler.transform(coffeeify)
 
   rebundle = ->
-    console.log "rebundle"
-    stream = bundler.bundle()
-    stream.on 'error', $.notify.onError({ onError: true })
-      .pipe($.plumber())
-      .pipe(source(output))
+    bundler
+      .bundle()
+      .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
+      .pipe(source('application.js'))
       .pipe(gulp.dest(SCRIPTS_BUILD_DIR))
       .pipe($.if(!isProduction, reload({ stream: true, once: true })))
-    stream
 
-  bundler.on 'update', rebundle
+  unless isProduction
+    bundler = watchify(bundler)
+    bundler.on 'update', rebundle
+
   rebundle()
 
 ###############################################################################
