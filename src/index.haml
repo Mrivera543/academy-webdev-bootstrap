@@ -26,12 +26,22 @@
     %link{ :rel => "stylesheet", :type => "text/css", :href => "/stylesheets/application.css" }
     %script{ :type => "text/javascript", :src => "/scripts/application.js" }
   %body
-    %h1
-      Hello World!
-    .columns
-      .col-50
-        Left
-      .col-50
-        Right
-    %p
-      This is a footer - hallo!!!
+    .header
+      %img{src: '/assets/images/logo-9e.png'}
+      .container
+        %h1
+          Hello World! This is a header
+    .container
+      .columns
+        .col-50
+          %p
+            Left Column
+        .col-50
+          %p
+            Right Column
+    .footer
+      .container
+        %p
+          This is a footer- Hello!!
+        %p
+          This bootstrap has been made by Sebastian Deutsch @9elements in Bochum
