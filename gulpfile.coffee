@@ -131,7 +131,7 @@ gulp.task 'watchify', ->
   bundler = browserify
     cache: {},
     packageCache: {},
-    fullPaths: true,
+    fullPaths: !isProduction,
     entries: ["#{BASES.src}/scripts/application.coffee"],
     extensions: ['.coffee', '.js'],
     debug: !isProduction
