@@ -3,5 +3,8 @@
   "version": "0.9.1",
   "engines": {
     "node": "0.10.x"
+  },
+  "dependencies": {
+    "gulp": "^3.9.0"
   }
 }
