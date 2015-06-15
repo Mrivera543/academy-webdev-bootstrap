@@ -1,10 +1,10 @@
-var path = require('path')
-var webpack = require('webpack')
+var path                  = require('path')
+var webpack               = require('webpack')
 var WebpackNotifierPlugin = require('webpack-notifier')
 
-var publicAssets = 'public/assets'
-var sourceFiles = 'gulp/assets'
-var env = process.env.ENV || 'development'
+var publicAssets = 'build'
+var sourceFiles  = 'src'
+var env          = process.env.ENV || 'development'
 
 module.exports = {
   // Global environment. Tasks watch for changes in development only
@@ -16,17 +16,13 @@ module.exports = {
   // node-sass / libsass configuration
   sass: {
     src: [
-      sourceFiles + '/stylesheets/frontend/frontend.sass',
-      sourceFiles + '/stylesheets/frontend/frontend-ie.sass',
-      sourceFiles + '/stylesheets/frontend/frontend-no-media-queries.sass',
-      sourceFiles + '/stylesheets/styleguide/styleguide.sass'
+      sourceFiles + '/stylesheets/application.scss'
     ],
     allSrc: [
-      sourceFiles + '/**/*.sass'
+      sourceFiles + '/**/*.scss'
     ],
     dest: publicAssets + '/stylesheets',
     settings: {
-      indentedSyntax: true,
       imagePath: '/assets/images',
       sourceComments: true,
       includePaths: [
@@ -35,17 +31,18 @@ module.exports = {
     }
   },
 
-  // Source and destination paths for images
-  images: {
-    src: sourceFiles + '/images/**',
-    dest: publicAssets + '/images'
+  // Source and destination paths for html
+  html: {
+    src: sourceFiles + '/**/*.html',
+    dest: publicAssets
   },
 
-  // Source and destination paths for fonts
-  fonts: {
-    src: sourceFiles + '/fonts/**',
-    dest: publicAssets + '/fonts'
+  // Source and destination paths for assets
+  assets: {
+    src: sourceFiles + '/assets/**',
+    dest: publicAssets + '/assets'
   },
+
 
   // Source and destination paths for javascripts
   js: {
@@ -76,10 +73,7 @@ module.exports = {
       }
     },
     entry: {
-      frontend: './frontend/frontend',
-      'frontend-vendor': './frontend/vendor',
-      styleguide: './styleguide/styleguide',
-      'styleguide-vendor': './styleguide/vendor'
+      application: 'application.js'
     },
     module: {
       loaders: [
@@ -92,7 +86,7 @@ module.exports = {
     plugins: [
       new webpack.ContextReplacementPlugin(
         /pages$/,
-        path.resolve(path.join('gulp', 'assets', 'javascripts', 'frontend', 'pages')),
+        path.resolve(path.join('src', 'javascripts')),
         false
       ),
       new WebpackNotifierPlugin()
