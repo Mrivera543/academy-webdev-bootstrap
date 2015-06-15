@@ -53,17 +53,6 @@ gulp.task 'clean', ->
   gulp.src(BASES.build).pipe($.clean())
 
 ###############################################################################
-# haml
-###############################################################################
-
-gulp.task 'haml', ->
-  gulp.src(["#{BASES.src}/**/*.haml", "!#{BASES.src}/pages/**/_*"])
-    .pipe($.plumber({errorHandler: $.notify.onError("Error: <%= error.message %>")}))
-    .pipe($.rubyHaml())
-    .pipe(gulp.dest("#{BASES.build}"))
-    .pipe($.if(!isProduction, reload({ stream: true, once: true })))
-
-###############################################################################
 # coffeelint
 ###############################################################################
 
@@ -180,7 +169,7 @@ gulp.task 'serve', ->
 # high level tasks
 ###############################################################################
 
-gulp.task 'build:markup', ['copy', 'haml']
+gulp.task 'build:markup', ['copy']
 gulp.task 'build:scripts', ->
   runSequence 'coffeelint', 'watchify', 'uglify:all'
 gulp.task 'build:stylesheets', ->
