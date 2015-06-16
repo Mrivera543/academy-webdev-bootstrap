@@ -67,10 +67,7 @@ module.exports = {
     resolve: {
       extensions: ['', '.js', '.jsx'],
       root: path.resolve(sourceFiles + '/javascripts'),
-      modulesDirectories: ['node_modules'],
-      alias: {
-        'jquery': path.resolve(sourceFiles + '/javascripts/vendor/jquery-1.11.3-min.js')
-      }
+      modulesDirectories: ['node_modules']
     },
     entry: {
       application: 'application.js'
